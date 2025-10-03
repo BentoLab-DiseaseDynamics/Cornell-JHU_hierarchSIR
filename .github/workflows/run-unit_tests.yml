@@ -1,0 +1,41 @@
+name: Run unit tests
+
+on: [pull_request]
+jobs:
+  deploy:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['ubuntu-latest',]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Set up conda environment
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        activate-environment: BENTOLAB-HIERARCHSIR
+        environment-file: BENTOLAB-HIERARCHSIR_conda-env.yml
+
+    - name: Install Boost Libraries
+      shell: bash -l {0}
+      run: |
+        conda activate BENTOLAB-HIERARCHSIR
+        sudo apt-get update && sudo apt-get install -y libboost-all-dev
+
+    - name: Install BENTOLAB-HIERARCHSIR 
+      shell: bash -l {0}
+      run: |
+        conda activate BENTOLAB-HIERARCHSIR
+        python -m pip install --upgrade pip
+        pip install -e . --force-reinstall
+
+    # - name: Run unit test
+    #   shell: bash -l {0}
+    #   run: |
+    #     conda activate BENTOLAB-HIERARCHSIR
+    #     pytest src/tests/test_lpp.py
