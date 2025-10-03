@@ -1,0 +1,95 @@
+name: Deploy forecasts
+on:
+  workflow_run:
+    workflows: ["Fetch preliminary NHSN HRD dataset"]   # auto-trigger when preliminary data has been fetched succesfully
+    types:
+      - completed
+  workflow_dispatch:  # allows manual trigger from Actions tab
+
+permissions:
+  contents: write         # Allows pushing commits
+  pull-requests: write    # Allows creating and merging PRs
+
+jobs:
+
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v2
+
+    # Uncomment to run on a GH Linux runner
+    # -------------------------------------
+    # - name: Set up Python
+    #   uses: actions/setup-python@v4
+    #   with:
+    #     python-version: '3.12'
+
+    - name: Set up conda environment
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        activate-environment: BENTOLAB-HIERARCHSIR
+        environment-file: BENTOLAB-HIERARCHSIR_conda-env.yml
+
+    # Uncomment to run on a GH Linux runner
+    # -------------------------------------
+    # - name: Install Boost Libraries
+    #   shell: bash -l {0}
+    #   run: |
+    #     conda activate BENTOLAB-HIERARCHSIR
+    #     sudo apt-get update && sudo apt-get install -y libboost-all-dev
+
+    - name: Install BENTOLAB-HIERARCHSIR 
+      shell: bash -l {0}
+      run: |
+        conda activate BENTOLAB-HIERARCHSIR
+        python -m pip install --upgrade pip
+        pip install -e . --force-reinstall
+
+    - name: Compute forecasts 
+      shell: bash -l {0}
+      run: |
+        conda activate BENTOLAB-HIERARCHSIR
+        python scripts/operational/forecast.py
+    
+    - name: Visualise forecasts on US map
+      shell: bash -l {0}
+      run: |
+        conda activate BENTOLAB-HIERARCHSIR
+        python scripts/operational/visualise-forecast.py
+
+    - name: Commit changes to a new feature branch
+      shell: bash -l {0}
+      run: |
+
+        # generate timestamped branch name and store as environmental variable
+        BRANCH_NAME="forecast-$(date +'%Y%m%d%H%M%S')"
+        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+        # configure git
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git checkout -b "$BRANCH_NAME"
+        
+        # stage ONLY the data file
+        git add -A
+        git commit -m "forecast made on $(date +'%Y-%m-%d %H:%M:%S')"
+
+        # Reset all other untracked changes just in case
+        git reset --hard  
+        git clean -fd    
+
+        # push changes
+        git push origin "$BRANCH_NAME"
+
+    - name: Create a pull request # had to install gh using homebrew to run on Mac
+      shell: bash -l {0}
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+        gh pr create --base main --head ${{ env.BRANCH_NAME }} --title "Automated CDC FluSight Forecast Update" --body "This PR includes the latest update of the CDC FluSight forecast."  
+    
+    - name: Merge pull request
+      shell: bash -l {0}
+      run: |
+        gh pr merge --delete-branch --squash
