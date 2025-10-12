@@ -17,30 +17,26 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
-    # Uncomment to run on a GH Linux runner
-    # -------------------------------------
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Download and set up Python 3.12
+      uses: actions/setup-python@v6
       with:
         python-version: '3.12'
 
-    - name: Set up conda environment
+    - name: Download and set up the BENTOLAB-HIERARCHSIR anaconda environment
       uses: conda-incubator/setup-miniconda@v3
       with:
         activate-environment: BENTOLAB-HIERARCHSIR
         environment-file: BENTOLAB-HIERARCHSIR_conda-env.yml
 
-    # Uncomment to run on a GH Linux runner
-    # -------------------------------------
     - name: Install Boost Libraries
       shell: bash -l {0}
       run: |
         conda activate BENTOLAB-HIERARCHSIR
         sudo apt-get update && sudo apt-get install -y libboost-all-dev
 
-    - name: Install BENTOLAB-HIERARCHSIR 
+    - name: Install model in the BENTOLAB-HIERARCHSIR anaconda environment
       shell: bash -l {0}
       run: |
         conda activate BENTOLAB-HIERARCHSIR
@@ -83,9 +79,10 @@ jobs:
         # push changes
         git push origin "$BRANCH_NAME"
 
-    - name: Create a pull request # had to install gh using homebrew to run on Mac
+    - name: Create a pull request
       shell: bash -l {0}
       run: |
+        sudo apt install gh
         echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
         gh pr create --base main --head ${{ env.BRANCH_NAME }} --title "Automated CDC FluSight Forecast Update" --body "This PR includes the latest update of the CDC FluSight forecast."  
     
