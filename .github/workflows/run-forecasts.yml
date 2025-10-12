@@ -21,10 +21,10 @@ jobs:
 
     # Uncomment to run on a GH Linux runner
     # -------------------------------------
-    # - name: Set up Python
-    #   uses: actions/setup-python@v4
-    #   with:
-    #     python-version: '3.12'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
 
     - name: Set up conda environment
       uses: conda-incubator/setup-miniconda@v3
@@ -34,11 +34,11 @@ jobs:
 
     # Uncomment to run on a GH Linux runner
     # -------------------------------------
-    # - name: Install Boost Libraries
-    #   shell: bash -l {0}
-    #   run: |
-    #     conda activate BENTOLAB-HIERARCHSIR
-    #     sudo apt-get update && sudo apt-get install -y libboost-all-dev
+    - name: Install Boost Libraries
+      shell: bash -l {0}
+      run: |
+        conda activate BENTOLAB-HIERARCHSIR
+        sudo apt-get update && sudo apt-get install -y libboost-all-dev
 
     - name: Install BENTOLAB-HIERARCHSIR 
       shell: bash -l {0}
