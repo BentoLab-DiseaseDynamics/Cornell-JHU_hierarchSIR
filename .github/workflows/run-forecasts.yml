@@ -30,11 +30,10 @@ jobs:
         activate-environment: BENTOLAB-HIERARCHSIR
         environment-file: BENTOLAB-HIERARCHSIR_conda-env.yml
 
-    - name: Install Boost Libraries
+    - name: Install Boost Libraries and compiler toolchain
       shell: bash -l {0}
       run: |
-        conda activate BENTOLAB-HIERARCHSIR
-        sudo apt-get update && sudo apt-get install -y libboost-all-dev
+        sudo apt-get update && sudo apt-get install -y build-essential libboost-all-dev
 
     - name: Install model in the BENTOLAB-HIERARCHSIR anaconda environment
       shell: bash -l {0}
