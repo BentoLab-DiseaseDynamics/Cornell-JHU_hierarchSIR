@@ -2,7 +2,7 @@
 This script,
 1. takes in an initial parameter guess from `~/data/interim/calibration/initial_guesses.csv`
 2. uses it to optimise the hierarchSIR model's parameters (in every US state)
-3. puts it back in the initial parameter guess file
+3. puts it back in the initial parameter guess file (for reproducibility original initial guess resides in `~/data/interim/calibration/initial_guesses_orig.csv`)
 """
 
 __author__      = "T.W. Alleman"
