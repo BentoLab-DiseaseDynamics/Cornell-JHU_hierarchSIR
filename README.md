@@ -19,15 +19,15 @@ Update conda to make sure your version is up-to-date,
 Setup/update the `environment`: All dependencies needed to run the scripts are collected in the conda `hierarchSIR_env.yml` file. To set up the environment,
 
     ```bash
-    conda env create -f hierarchSIR_env.yml
-    conda activate HIERARCHSIR
+    conda env create -f BENTOLAB-HIERARCHSIR_conda-env.yml
+    conda activate HBENTOLAB-HIERARCHSIR
     ```
 
 or alternatively, to update the environment (needed after adding a dependency),
 
     ```bash
-    conda activate HIERARCHSIR
-    conda env update -f hierarchSIR_env.yml --prune
+    conda activate BENTOLAB-HIERARCHSIR
+    conda env update -f BENTOLAB-HIERARCHSIR_conda-env.yml --prune
     ```
 
 ### Install the Boost libraries 
@@ -51,7 +51,7 @@ Note: Boost is a C++ library and is not installed "inside" the conda environment
 Install the `hierarchSIR` Python package inside the conda environment using,
 
     ```bash
-    conda activate HIERARCHSIR
+    conda activate BENTOLAB-HIERARCHSIR
     pip install -e . --force-reinstall
     ```
 
@@ -60,8 +60,43 @@ Note: If you make any changes to the C++ files you need to reinstall `hierarchSI
 
 ### Model training and forecasting
 
-See `scripts/code/hierarchical_training.py` and `scripts/code/incremental_calibration.py`.
+#### Training (execute once at season start)
 
-## Running on the JHU Rockfish cluster
+The following procedure is performed on a state-by-state basis (for loop over states):
+
+1. Activate the conda environment
+
+    ```bash
+    conda activate BENTOLAB-HIERARCHSIR 
+    cd ~/scripts/operational/
+    ```
+
+2. Starting from an initial guess, optimize the hierarchSIR parameters for every training season.
+
+    ```bash
+    python optimize-initial_guesses.py
+    ```
+
+3. Convert the optimized model parameters per training season into an initial guess of the across-season hyperdistributions of these parameters.
+
+    ```bash
+    python prepare-hyperparameters.py
+    ```
+
+3. Train the model to find the across-season hyperdistributions of the parameters.
+
+    ```bash
+    python hierarchical_training.py
+    ```
+
+#### Forecast (performed automatically using GH actions)
+
+1. Use the across-season hyperdistributions as priors to forecast 4-weeks ahead during the current season.
+    
+    ```bash
+    python forecast.py
+    ```
+
+## Training on the JHU Rockfish cluster
 
 See `JHU-ROCKFISH_README.md`.
