@@ -26,27 +26,72 @@ jobs:
           repository: BentoLab-DiseaseDynamics/Cornell-JHU_hierarchSIR
           path: forecast-repo
 
+      # Find latest forecast file
+      - name: Find latest forecast file
+        working-directory: forecast-repo
+        run: |
+          LATEST_FILE=$(ls data/interim/calibration/forecast/SIR-1S/hyperparameters-exclude_None/*.csv | sort -r | head -n 1)
+          FILENAME=$(basename "$LATEST_FILE") 
+          REFERENCE_DATE=${FILENAME:0:10}
+          echo "Found latest forecast file: $LATEST_FILE"
+          echo "LATEST_FILE=$LATEST_FILE" >> $GITHUB_ENV
+          echo "REFERENCE_DATE=$REFERENCE_DATE" >> $GITHUB_ENV
+
       # Checkout your forked challenge repo
       - name: Checkout CDC FluSight repository fork
         uses: actions/checkout@v5
         with:
           repository: BentoLab-DiseaseDynamics/FluSight-forecast-hub
-          token: ${{ secrets.FORECAST_UPLOAD_TOKEN }}
           ref: main
           path: challenge-repo
-
-      # Copy file between directories on the same VM
+      
+      # Copy the file between repositories
       - name: Copy forecast file
         run: |
-          cp forecast-repo/data/interim/calibration/forecast/SIR-1S/hyperparameters-exclude_None/forecast_latest.csv challenge-repo/submissions/forecast.csv
+          mkdir -p challenge-repo/model-output/Cornell-JHU_hierarchSIR/
+          cp "${{ env.LATEST_FILE }}" challenge-repo/model-output/Cornell-JHU_hierarchSIR/
 
-      # Commit and push in challenge repo
-      - name: Commit and push
+      # Commit and push the forecast to the fork
+      - name: Commit and push forecast to fork
         working-directory: challenge-repo
+        shell: bash
         run: |
+
+          # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b auto-forecast-$(date +%Y-%m-%d)
-          git add submissions/forecast.csv
-          git commit -m "Automated forecast for $(date +%Y-%m-%d)"
-          git push origin HEAD
+          
+          # Create branch using reference date
+          BRANCH="forecast-${{ env.REFERENCE_DATE }}"
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+          git checkout -b "$BRANCH"
+          
+          # Stage the new forecast file
+          git add model-output/Cornell-JHU_hierarchSIR/
+          
+          # Commit with message including reference date
+          git commit -m "forecast for reference date ${{ env.REFERENCE_DATE }}"
+          
+          # Push branch to fork
+          git push origin "$BRANCH"
+
+      - name: Create pull request to upstream challenge repo
+        working-directory: challenge-repo
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.FORECAST_UPLOAD_TOKEN }}
+        run: |
+
+          # Check gh version
+          gh --version
+
+          # Authenticate
+          echo "$GITHUB_TOKEN" | gh auth login --with-token
+
+          # Create PR
+          gh pr create \
+            --repo BentoLab-DiseaseDynamics/FluSight-forecast-hub \
+            --head "${{ env.BRANCH }}" \
+            --base main \
+            --title "Automated forecast submission ${{ env.REFERENCE_DATE }}" \
+            --body "This PR contains the forecast for reference date ${{ env.REFERENCE_DATE }}."
