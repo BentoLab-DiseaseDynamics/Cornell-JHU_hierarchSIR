@@ -1,4 +1,4 @@
-name: Deploy forecasts
+name: Run forecasts
 on:
   workflow_run:
     workflows: ["Fetch preliminary NHSN HRD dataset"]   # auto-trigger when preliminary data has been fetched succesfully
