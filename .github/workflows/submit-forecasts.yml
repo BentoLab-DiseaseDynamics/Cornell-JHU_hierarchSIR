@@ -78,17 +78,9 @@ jobs:
       - name: Create pull request to upstream challenge repo
         working-directory: challenge-repo
         shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.FORECAST_UPLOAD_TOKEN }}
         run: |
-
-          # Check gh version
-          gh --version
-
-          # Authenticate
-          echo "$GITHUB_TOKEN" | gh auth login --with-token
-
-          # Create PR
+          sudo apt install gh
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           gh pr create \
             --repo BentoLab-DiseaseDynamics/FluSight-forecast-hub \
             --head "${{ env.BRANCH }}" \
