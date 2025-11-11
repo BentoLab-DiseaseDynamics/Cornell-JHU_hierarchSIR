@@ -242,7 +242,4 @@ if __name__ == '__main__':
     forecasts = forecasts.drop(columns=["strain_0"]) # TODO: generalise over strains
 
     # stamped with reference date
-    forecasts.to_csv(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/forecast_reference_date-{(end_date+timedelta(weeks=1)).strftime('%Y-%m-%d')}.csv'))
-
-    # unstamped -- provides a deterministic path to the 'latest' forecast (that gets overriden every week)
-    forecasts.to_csv(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/forecast_latest.csv'))
+    forecasts.to_csv(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/{(end_date+timedelta(weeks=1)).strftime('%Y-%m-%d')}-Cornell-JHU_hierarchSIR.csv'))
