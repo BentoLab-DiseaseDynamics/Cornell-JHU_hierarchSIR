@@ -67,8 +67,8 @@ jobs:
           git checkout -b "$BRANCH"
           
           # Stage the new forecast file
-          git add model-output/Cornell-JHU_hierarchSIR/
-          
+          git add model-output/Cornell-JHU_hierarchSIR/$(basename "${{ env.LATEST_FILE }}")
+
           # Commit with message including reference date
           git commit -m "forecast for reference date ${{ env.REFERENCE_DATE }}"
           
@@ -82,8 +82,8 @@ jobs:
           sudo apt install gh
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           gh pr create \
-            --repo BentoLab-DiseaseDynamics/FluSight-forecast-hub \
-            --head "${{ env.BRANCH }}" \
+            --repo cdcepi/FluSight-forecast-hub \
+            --head BentoLab-DiseaseDynamics:${{ env.BRANCH }} \
             --base main \
             --title "Automated forecast submission ${{ env.REFERENCE_DATE }}" \
             --body "This PR contains the forecast for reference date ${{ env.REFERENCE_DATE }}."
