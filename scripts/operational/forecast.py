@@ -237,7 +237,12 @@ if __name__ == '__main__':
         plot_fit(simout, data_calib, data_valid, states, fig_path, identifier,
                 lpp.coordinates_data_also_in_model, lpp.aggregate_over, lpp.additional_axes_data, name_state)
     
-    # spit out final result
+    # spit out final result 
     forecasts = pd.concat(forecasts, axis=0)
     forecasts = forecasts.drop(columns=["strain_0"]) # TODO: generalise over strains
+
+    # stamped with reference date
     forecasts.to_csv(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/forecast_reference_date-{(end_date+timedelta(weeks=1)).strftime('%Y-%m-%d')}.csv'))
+
+    # unstamped -- provides a deterministic path to the 'latest' forecast (that gets overriden every week)
+    forecasts.to_csv(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/forecast_latest.csv'))
