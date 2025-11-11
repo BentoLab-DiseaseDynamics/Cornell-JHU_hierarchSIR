@@ -40,15 +40,15 @@ move_dict = {'HI': (26.5, 8), 'AK': (24, -12), 'PR': (-6, 6),   # outlying islan
 def extract_timestamp(fname, pattern):
     match = pattern.search(fname.name)
     if match:
-        return datetime.strptime(match.group(0)[-10:], "%Y-%m-%d")
+        return datetime.strptime(match.group(0)[:10], "%Y-%m-%d")
     return None
 
 from pathlib import Path
 forecast_folder = Path(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/'))
-pattern = re.compile(r"forecast_reference_date-\d{4}-\d{2}-\d{2}")                                     # regex to capture gathered timestamp
+pattern = re.compile(r"\d{4}-\d{2}-\d{2}-Cornell-JHU_hierarchSIR")                                     # regex to capture gathered timestamp
 files_with_time = [(f, extract_timestamp(f, pattern)) for f in forecast_folder.glob("*.csv")]          # collect files and their timestamps
 files_with_time = [(f, t) for f, t in files_with_time if t is not None]
-latest_forecast_file, reference_date = max(files_with_time, key=lambda x: x[1])                                           # get the latest file
+latest_forecast_file, reference_date = max(files_with_time, key=lambda x: x[1])                        # get the latest file
 
 ############################
 ## Load forecast and data ##
@@ -166,5 +166,5 @@ ax.set_ylim([22, 52])
 ax.set_axis_off()
 
 plt.tight_layout()
-plt.savefig(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/forecast_reference_date-{reference_date.strftime("%Y-%m-%d")}.png'), dpi=400)
+plt.savefig(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/{reference_date.strftime("%Y-%m-%d")}-Cornell-JHU_hierarchSIR.png'), dpi=400)
 plt.close()
