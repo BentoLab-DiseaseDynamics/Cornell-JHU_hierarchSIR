@@ -47,14 +47,16 @@ jobs:
       
       # Copy the file between repositories
       - name: Copy forecast file
+        shell: bash
+        working-directory: challenge-repo
         run: |
-          mkdir -p challenge-repo/model-output/Cornell-JHU_hierarchSIR/
-          cp "${{ env.LATEST_FILE }}" challenge-repo/model-output/Cornell-JHU_hierarchSIR/
+          mkdir -p model-output/Cornell-JHU_hierarchSIR/
+          cp "${{ env.LATEST_FILE }}" model-output/Cornell-JHU_hierarchSIR/
 
       # Commit and push the forecast to the fork
       - name: Commit and push forecast to fork
-        working-directory: challenge-repo
         shell: bash
+        working-directory: challenge-repo
         run: |
 
           # Configure git
@@ -76,8 +78,8 @@ jobs:
           git push origin "$BRANCH"
 
       - name: Create pull request to upstream challenge repo
-        working-directory: challenge-repo
         shell: bash
+        working-directory: challenge-repo
         run: |
           sudo apt install gh
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
