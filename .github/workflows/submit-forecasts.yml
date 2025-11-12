@@ -58,35 +58,39 @@ jobs:
       - name: Commit and push forecast to fork
         shell: bash
         working-directory: challenge-repo
+        env:
+          SUBMIT_FORECAST_TOKEN: ${{ secrets.SUBMIT_FORECAST_TOKEN }}
         run: |
-
           # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           # Create branch using reference date
           BRANCH="forecast-${{ env.REFERENCE_DATE }}"
           echo "BRANCH=$BRANCH" >> $GITHUB_ENV
           git checkout -b "$BRANCH"
-          
-          # Stage the new forecast file
-          git add model-output/Cornell-JHU_hierarchSIR/$(basename "${{ env.LATEST_FILE }}")
 
-          # Commit with message including reference date
+          # Stage and commit
+          git add model-output/Cornell-JHU_hierarchSIR/$(basename "${{ env.LATEST_FILE }}")
           git commit -m "forecast for reference date ${{ env.REFERENCE_DATE }}"
-          
-          # Push branch to fork
+
+          # Use PAT for authentication when pushing
+          git remote set-url origin https://x-access-token:${SUBMIT_FORECAST_TOKEN}@github.com/BentoLab-DiseaseDynamics/FluSight-forecast-hub.git
           git push origin "$BRANCH"
 
+      # Create pull request to upstream challenge repo
       - name: Create pull request to upstream challenge repo
         shell: bash
         working-directory: challenge-repo
+        env:
+          SUBMIT_FORECAST_TOKEN: ${{ secrets.SUBMIT_FORECAST_TOKEN }}
         run: |
-          sudo apt install gh
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+          sudo apt install -y gh
+          echo "${SUBMIT_FORECAST_TOKEN}" | gh auth login --with-token
           gh pr create \
             --repo cdcepi/FluSight-forecast-hub \
             --head BentoLab-DiseaseDynamics:${{ env.BRANCH }} \
             --base main \
             --title "Automated forecast submission ${{ env.REFERENCE_DATE }}" \
             --body "This PR contains the forecast for reference date ${{ env.REFERENCE_DATE }}."
+
