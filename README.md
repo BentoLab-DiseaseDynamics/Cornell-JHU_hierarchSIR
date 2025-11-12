@@ -1,4 +1,4 @@
-# Cornell-JHU_hierarchSIR
+# Cornell_JHU-hierarchSIR
 
 A hybrid multi-strain SIR - Bayesian hierarchical discrepancy model for infectious disease forecasting.
 
