@@ -31,10 +31,11 @@ jobs:
         working-directory: forecast-repo
         run: |
           LATEST_FILE=$(ls data/interim/calibration/forecast/SIR-1S/hyperparameters-exclude_None/*.csv | sort -r | head -n 1)
+          ABS_PATH="${GITHUB_WORKSPACE}/forecast-repo/${LATEST_FILE}"
           FILENAME=$(basename "$LATEST_FILE") 
           REFERENCE_DATE=${FILENAME:0:10}
-          echo "Found latest forecast file: $LATEST_FILE"
-          echo "LATEST_FILE=$LATEST_FILE" >> $GITHUB_ENV
+          echo "Found latest forecast file: $ABS_PATH"
+          echo "LATEST_FILE=$ABS_PATH" >> $GITHUB_ENV
           echo "REFERENCE_DATE=$REFERENCE_DATE" >> $GITHUB_ENV
 
       # Checkout your forked challenge repo
