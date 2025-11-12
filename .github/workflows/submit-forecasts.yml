@@ -1,0 +1,91 @@
+name: Submit forecasts
+on:
+  workflow_run:
+    workflows: ["Run forecasts"]   # auto-trigger when forecasts have been generated succesfully
+    types:
+      - completed
+  workflow_dispatch:  # allows manual trigger from Actions tab
+
+permissions:
+  contents: write         # Allows pushing commits
+  pull-requests: write    # Allows creating and merging PRs
+
+jobs:
+
+  upload:
+
+    # Set up on virtual ubuntu machine
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout your main forecast repo
+      - name: Checkout forecast repository
+        uses: actions/checkout@v5
+        with:
+          repository: BentoLab-DiseaseDynamics/Cornell-JHU_hierarchSIR
+          path: forecast-repo
+
+      # Find latest forecast file
+      - name: Find latest forecast file
+        working-directory: forecast-repo
+        run: |
+          LATEST_FILE=$(ls data/interim/calibration/forecast/SIR-1S/hyperparameters-exclude_None/*.csv | sort -r | head -n 1)
+          FILENAME=$(basename "$LATEST_FILE") 
+          REFERENCE_DATE=${FILENAME:0:10}
+          echo "Found latest forecast file: $LATEST_FILE"
+          echo "LATEST_FILE=$LATEST_FILE" >> $GITHUB_ENV
+          echo "REFERENCE_DATE=$REFERENCE_DATE" >> $GITHUB_ENV
+
+      # Checkout your forked challenge repo
+      - name: Checkout CDC FluSight repository fork
+        uses: actions/checkout@v5
+        with:
+          repository: BentoLab-DiseaseDynamics/FluSight-forecast-hub
+          ref: main
+          path: challenge-repo
+      
+      # Copy the file between repositories
+      - name: Copy forecast file
+        shell: bash
+        working-directory: challenge-repo
+        run: |
+          mkdir -p model-output/Cornell-JHU_hierarchSIR/
+          cp "${{ env.LATEST_FILE }}" model-output/Cornell-JHU_hierarchSIR/
+
+      # Commit and push the forecast to the fork
+      - name: Commit and push forecast to fork
+        shell: bash
+        working-directory: challenge-repo
+        run: |
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Create branch using reference date
+          BRANCH="forecast-${{ env.REFERENCE_DATE }}"
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+          git checkout -b "$BRANCH"
+          
+          # Stage the new forecast file
+          git add model-output/Cornell-JHU_hierarchSIR/$(basename "${{ env.LATEST_FILE }}")
+
+          # Commit with message including reference date
+          git commit -m "forecast for reference date ${{ env.REFERENCE_DATE }}"
+          
+          # Push branch to fork
+          git push origin "$BRANCH"
+
+      - name: Create pull request to upstream challenge repo
+        shell: bash
+        working-directory: challenge-repo
+        run: |
+          sudo apt install gh
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+          gh pr create \
+            --repo cdcepi/FluSight-forecast-hub \
+            --head BentoLab-DiseaseDynamics:${{ env.BRANCH }} \
+            --base main \
+            --title "Automated forecast submission ${{ env.REFERENCE_DATE }}" \
+            --body "This PR contains the forecast for reference date ${{ env.REFERENCE_DATE }}."
