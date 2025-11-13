@@ -23,7 +23,7 @@ jobs:
       - name: Checkout forecast repository
         uses: actions/checkout@v5
         with:
-          repository: BentoLab-DiseaseDynamics/Cornell-JHU_hierarchSIR
+          repository: BentoLab-DiseaseDynamics/Cornell_JHU-hierarchSIR
           path: forecast-repo
 
       # Find latest forecast file
@@ -51,8 +51,8 @@ jobs:
         shell: bash
         working-directory: challenge-repo
         run: |
-          mkdir -p model-output/Cornell-JHU_hierarchSIR/
-          cp "${{ env.LATEST_FILE }}" model-output/Cornell-JHU_hierarchSIR/
+          mkdir -p model-output/Cornell_JHU-hierarchSIR/
+          cp "${{ env.LATEST_FILE }}" model-output/Cornell_JHU-hierarchSIR/
 
       # Commit and push the forecast to the fork
       - name: Commit and push forecast to fork
@@ -69,10 +69,9 @@ jobs:
           BRANCH="forecast-${{ env.REFERENCE_DATE }}"
           echo "BRANCH=$BRANCH" >> $GITHUB_ENV
           git checkout -b "$BRANCH"
-
-          # Stage and commit
-          git add model-output/Cornell-JHU_hierarchSIR/$(basename "${{ env.LATEST_FILE }}")
-          git commit -m "forecast for reference date ${{ env.REFERENCE_DATE }}"
+          
+          # Stage the new forecast file
+          git add model-output/Cornell_JHU-hierarchSIR/$(basename "${{ env.LATEST_FILE }}")
 
           # Use PAT for authentication when pushing
           git remote set-url origin https://x-access-token:${SUBMIT_FORECAST_TOKEN}@github.com/BentoLab-DiseaseDynamics/FluSight-forecast-hub.git
