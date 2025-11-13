@@ -45,7 +45,7 @@ def extract_timestamp(fname, pattern):
 
 from pathlib import Path
 forecast_folder = Path(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/'))
-pattern = re.compile(r"\d{4}-\d{2}-\d{2}-Cornell-JHU_hierarchSIR")                                     # regex to capture gathered timestamp
+pattern = re.compile(r"\d{4}-\d{2}-\d{2}-Cornell_JHU-hierarchSIR")                                     # regex to capture gathered timestamp
 files_with_time = [(f, extract_timestamp(f, pattern)) for f in forecast_folder.glob("*.csv")]          # collect files and their timestamps
 files_with_time = [(f, t) for f, t in files_with_time if t is not None]
 latest_forecast_file, reference_date = max(files_with_time, key=lambda x: x[1])                        # get the latest file
@@ -166,5 +166,5 @@ ax.set_ylim([22, 52])
 ax.set_axis_off()
 
 plt.tight_layout()
-plt.savefig(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/{reference_date.strftime("%Y-%m-%d")}-Cornell-JHU_hierarchSIR.png'), dpi=400)
+plt.savefig(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/{reference_date.strftime("%Y-%m-%d")}-Cornell_JHU-hierarchSIR.png'), dpi=400)
 plt.close()
