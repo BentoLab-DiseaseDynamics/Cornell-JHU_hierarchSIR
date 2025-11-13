@@ -28,12 +28,12 @@ if not BOT_TOKEN:
 def extract_timestamp(fname, pattern):
     match = pattern.search(fname.name)
     if match:
-        return datetime.strptime(match.group(0)[-10:], "%Y-%m-%d")
+        return datetime.strptime(match.group(0)[:10], "%Y-%m-%d")
     return None
 
 from pathlib import Path
 forecast_folder = Path(os.path.join(os.path.dirname(__file__), f'../../data/interim/calibration/forecast/{model_name}/hyperparameters-{hyperparameters}/'))
-pattern = re.compile(r"forecast_reference_date-\d{4}-\d{2}-\d{2}")                                     # regex to capture gathered timestamp
+pattern = re.compile(r"\d{4}-\d{2}-\d{2}-Cornell-JHU_hierarchSIR")                                     # regex to capture gathered timestamp
 files_with_time = [(f, extract_timestamp(f, pattern)) for f in forecast_folder.glob("*.png")]          # collect files and their timestamps
 files_with_time = [(f, t) for f, t in files_with_time if t is not None]
 path_to_fig, reference_date = max(files_with_time, key=lambda x: x[1])                                           # get the latest file
