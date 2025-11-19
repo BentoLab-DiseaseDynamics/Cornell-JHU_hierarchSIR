@@ -85,6 +85,7 @@ jobs:
 
           # Use PAT for authentication when pushing
           git remote set-url origin https://x-access-token:${SUBMIT_FORECAST_TOKEN}@github.com/BentoLab-DiseaseDynamics/FluSight-forecast-hub.git
+          git remote -v
           git push origin "$BRANCH"
 
       # Create pull request to upstream challenge repo
