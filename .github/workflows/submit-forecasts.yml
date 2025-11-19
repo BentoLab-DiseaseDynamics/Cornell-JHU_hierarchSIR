@@ -45,6 +45,7 @@ jobs:
           repository: BentoLab-DiseaseDynamics/FluSight-forecast-hub
           ref: main
           path: challenge-repo
+          persist-credentials: false
       
       # Copy the file between repositories
       - name: Copy forecast file
