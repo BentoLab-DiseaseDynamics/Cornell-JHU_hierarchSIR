@@ -57,6 +57,7 @@ jobs:
       # Verify token exists
       - name: Debug PAT usage
         shell: bash
+        working-directory: challenge-repo
         env:
           SUBMIT_FORECAST_TOKEN: ${{ secrets.SUBMIT_FORECAST_TOKEN }}
         run: |
