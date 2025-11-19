@@ -53,7 +53,16 @@ jobs:
         run: |
           mkdir -p model-output/Cornell_JHU-hierarchSIR/
           cp "${{ env.LATEST_FILE }}" model-output/Cornell_JHU-hierarchSIR/
-
+      
+      # Verify token exists
+      - name: Debug PAT usage
+        shell: bash
+        env:
+          SUBMIT_FORECAST_TOKEN: ${{ secrets.SUBMIT_FORECAST_TOKEN }}
+        run: |
+          echo "Token begins with: ${SUBMIT_FORECAST_TOKEN::4}"
+          git remote -v
+          
       # Commit and push the forecast to the fork
       - name: Commit and push forecast to fork
         shell: bash
