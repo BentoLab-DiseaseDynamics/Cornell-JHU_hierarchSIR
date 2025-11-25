@@ -100,3 +100,7 @@ The following procedure is performed on a state-by-state basis (for loop over st
 ## Training on the JHU Rockfish cluster
 
 See `JHU-ROCKFISH_README.md`.
+
+## Workflows
+
+- Automated forecast submission requires the use of two tokens PR_CREATION_TOKEN and SUBMIT_FORECAST_TOKEN, saved in the repository secrets (GH repo page > Settings > Secrets and Variables > Actions). Both tokens were generated from @twallema's personal GH account. PR_CREATION_TOKEN is a classic personal access token with 'repo' and 'read:org' permissions and is valid until the end of the challenge (May 31, 2026). This token is used to open a PR from BentoLab-DiseaseDynamics/Flusight-forecast-hub to cdcepi/Flusight-forecast-hub in @twallema's name. SUBMIT_FORECAST_TOKEN is a fine-grained access token, which grants @twallema access to the BentoLab-DiseaseDynamics/Cornell_JHU-hierarchSIR repository with approval for workflows 'read metadata' and ' Read and Write access to actions, code, and pull requests'. The token is valid until Nov 2026. Both tokens will have to be renewed during the summer of 2026 for the 2026-2027 challenge.
