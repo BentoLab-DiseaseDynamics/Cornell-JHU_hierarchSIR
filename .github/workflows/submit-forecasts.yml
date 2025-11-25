@@ -45,6 +45,7 @@ jobs:
           repository: BentoLab-DiseaseDynamics/FluSight-forecast-hub
           ref: main
           path: challenge-repo
+          persist-credentials: false
       
       # Copy the file between repositories
       - name: Copy forecast file
@@ -53,7 +54,7 @@ jobs:
         run: |
           mkdir -p model-output/Cornell_JHU-hierarchSIR/
           cp "${{ env.LATEST_FILE }}" model-output/Cornell_JHU-hierarchSIR/
-
+      
       # Commit and push the forecast to the fork
       - name: Commit and push forecast to fork
         shell: bash
@@ -74,18 +75,17 @@ jobs:
           git add model-output/Cornell_JHU-hierarchSIR/$(basename "${{ env.LATEST_FILE }}")
 
           # Use PAT for authentication when pushing
-          git remote set-url origin https://x-access-token:${SUBMIT_FORECAST_TOKEN}@github.com/BentoLab-DiseaseDynamics/FluSight-forecast-hub.git
-          git push origin "$BRANCH"
+          git -C . push https://x-access-token:${SUBMIT_FORECAST_TOKEN}@github.com/BentoLab-DiseaseDynamics/FluSight-forecast-hub.git "$BRANCH"
 
       # Create pull request to upstream challenge repo
       - name: Create pull request to upstream challenge repo
         shell: bash
         working-directory: challenge-repo
         env:
-          SUBMIT_FORECAST_TOKEN: ${{ secrets.SUBMIT_FORECAST_TOKEN }}
+          PR_CREATION_TOKEN: ${{ secrets.PR_CREATION_TOKEN }}
         run: |
           sudo apt install -y gh
-          echo "${SUBMIT_FORECAST_TOKEN}" | gh auth login --with-token
+          echo "${PR_CREATION_TOKEN}" | gh auth login --with-token
           gh pr create \
             --repo cdcepi/FluSight-forecast-hub \
             --head BentoLab-DiseaseDynamics:${{ env.BRANCH }} \
