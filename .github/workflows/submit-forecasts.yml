@@ -95,7 +95,7 @@ jobs:
           SUBMIT_FORECAST_TOKEN: ${{ secrets.SUBMIT_FORECAST_TOKEN }}
         run: |
           sudo apt install -y gh
-          echo "${SUBMIT_FORECAST_TOKEN}" | gh auth login --with-token
+          echo "${GITHUB_TOKEN}" | gh auth login --with-token
           gh pr create \
             --repo cdcepi/FluSight-forecast-hub \
             --head BentoLab-DiseaseDynamics:${{ env.BRANCH }} \
