@@ -82,7 +82,7 @@ jobs:
         shell: bash
         working-directory: challenge-repo
         env:
-          SUBMIT_FORECAST_TOKEN: ${{ secrets.SUBMIT_FORECAST_TOKEN }}
+          PR_CREATION_TOKEN: ${{ secrets.PR_CREATION_TOKEN }}
         run: |
           sudo apt install -y gh
           echo "${GITHUB_TOKEN}" | gh auth login --with-token
