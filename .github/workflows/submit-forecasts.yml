@@ -85,7 +85,7 @@ jobs:
           PR_CREATION_TOKEN: ${{ secrets.PR_CREATION_TOKEN }}
         run: |
           sudo apt install -y gh
-          echo "${GITHUB_TOKEN}" | gh auth login --with-token
+          echo "${PR_CREATION_TOKEN}" | gh auth login --with-token
           gh pr create \
             --repo cdcepi/FluSight-forecast-hub \
             --head BentoLab-DiseaseDynamics:${{ env.BRANCH }} \
