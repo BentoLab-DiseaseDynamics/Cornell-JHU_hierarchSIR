@@ -73,6 +73,7 @@ jobs:
           
           # Stage the new forecast file
           git add model-output/Cornell_JHU-hierarchSIR/$(basename "${{ env.LATEST_FILE }}")
+          git commit -m "Add forecast for ${{ env.REFERENCE_DATE }}"
 
           # Use PAT for authentication when pushing
           git -C . push https://x-access-token:${SUBMIT_FORECAST_TOKEN}@github.com/BentoLab-DiseaseDynamics/FluSight-forecast-hub.git "$BRANCH"
