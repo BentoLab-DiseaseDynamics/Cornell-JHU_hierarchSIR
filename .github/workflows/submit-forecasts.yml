@@ -46,7 +46,18 @@ jobs:
           ref: main
           path: challenge-repo
           persist-credentials: false
-      
+    
+      # Add upstream remote and sync fork/main
+      - name: Sync CDC FluSight repository with upstream (cdcepi)
+        shell: bash
+        working-directory: challenge-repo
+        run: |
+          git remote add upstream https://github.com/cdcepi/FluSight-forecast-hub.git
+          git fetch upstream
+          git checkout main
+          git merge --ff-only upstream/main || git rebase upstream/main
+          git push origin main
+
       # Copy the file between repositories
       - name: Copy forecast file
         shell: bash
