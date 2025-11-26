@@ -339,6 +339,9 @@ def simout_to_hubverse(simout: xr.Dataset,
     df["location"] = df["location"].astype(str).str.zfill(2)
     df.loc[df["location"] == "00", "location"] = "US"
 
+    # Ensure all values in "value" are at least 0 --> prevent rounding errors
+    df["value"] = df["value"].clip(lower=0)
+
     # save result
     if path:
         df.to_csv(path+reference_date.strftime('%Y-%m-%d')+'-JHU_Cornell'+'-hierarchSIR.csv', index=False)
