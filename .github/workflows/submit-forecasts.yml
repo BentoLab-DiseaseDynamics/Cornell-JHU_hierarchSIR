@@ -89,7 +89,7 @@ jobs:
           git commit -m "Add forecast for ${{ env.REFERENCE_DATE }}"
 
           # Use PAT for authentication when pushing
-          git -C . push https://x-access-token:${SUBMIT_FORECAST_TOKEN}@github.com/BentoLab-DiseaseDynamics/FluSight-forecast-hub.git "$BRANCH"
+          git push https://x-access-token:${SUBMIT_FORECAST_TOKEN}@github.com/BentoLab-DiseaseDynamics/FluSight-forecast-hub.git "$BRANCH"
 
       # Create pull request to upstream challenge repo
       - name: Create pull request to upstream challenge repo
