@@ -104,6 +104,6 @@ jobs:
             --repo cdcepi/FluSight-forecast-hub \
             --head BentoLab-DiseaseDynamics:${{ env.BRANCH }} \
             --base main \
-            --title "Automated forecast submission ${{ env.REFERENCE_DATE }}" \
-            --body "This PR contains the forecast for reference date ${{ env.REFERENCE_DATE }}."
+            --title "Cornell_JHU-hierarchSIR Automated Forecast Submission ${{ env.REFERENCE_DATE }}" \
+            --body "This PR contains the Cornell_JHU-hierarchSIR forecast for reference date ${{ env.REFERENCE_DATE }}."
 
