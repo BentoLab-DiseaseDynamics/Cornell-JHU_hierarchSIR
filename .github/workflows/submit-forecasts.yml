@@ -51,6 +51,8 @@ jobs:
       - name: Sync CDC FluSight repository with upstream (cdcepi)
         shell: bash
         working-directory: challenge-repo
+        env:
+          SUBMIT_FORECAST_TOKEN: ${{ secrets.SUBMIT_FORECAST_TOKEN }}
         run: |
           git remote add upstream https://github.com/cdcepi/FluSight-forecast-hub.git
           git fetch upstream
